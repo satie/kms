@@ -247,15 +247,16 @@ public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtabl
 ```
 
 ##### Jetty
+`TBD`
 ##### JBoss EAP
-
+`TBD`
 ### Encrypt Configuration Files
 ##### Java Property Files
 ##### Custom Bean Parser
 
 ### Data Encryption
 ##### Column Data
-Most applications at hCentive use Hibernate as the database persistence framework. Hibernate provides the  [UserType](https://docs.jboss.org/hibernate/orm/4.2/javadocs/org/hibernate/usertype/UserType.html) interface to implement user-defined types. The `hcentive-kms-provider` implements the `EncryptedStringType`, `EncryptedDoubleAsStringType` and `EncryptedBigDecimalAsStringType` classes to persist encrypted data. All these classes extended the `AbstractEncryptedAsStringType` abstract class. The class reads the encryption context from [ThreadLocal](https://docs.oracle.com/javase/7/docs/api/java/lang/ThreadLocal.html). Fields in Hibernate domain objects can be annotated as types of these classes to encrypt their values.
+Most applications at hCentive use Hibernate as the database persistence framework. Hibernate provides the  [UserType](https://docs.jboss.org/hibernate/orm/4.2/javadocs/org/hibernate/usertype/UserType.html) interface to implement user-defined types. The `hcentive-kms-provider` implements the `EncryptedStringType`, `EncryptedDoubleAsStringType` and `EncryptedBigDecimalAsStringType` classes to persist encrypted data. All these classes extend the `AbstractEncryptedAsStringType` abstract class. The class reads the encryption context from [ThreadLocal](https://docs.oracle.com/javase/7/docs/api/java/lang/ThreadLocal.html). Fields in Hibernate domain objects can be annotated as types of these classes to encrypt their values.
 
 The `AbstractEncryptedAsStringType` class overrides to `nullSafeSet` method to use the `KMSEncryptor` to encrypt the field value -
 ```java
@@ -286,12 +287,14 @@ public Object nullSafeGet(ResultSet rs, String[] names,
 }
 ```
 
+The `checkInitialization` method in `AbstractEncryptedAsStringType` ensures that the `encryptor` is set up.
+
 As an example, when defining a domain object, use the following annotations to define custom encrypted types
 ```java
 @TypeDefs({
-		@TypeDef(name = "encryptedString", typeClass = EncryptedStringType.class, parameters = { @Parameter(name = "encryptorRegisteredName", value = "jasyptHibernateEncryptor") }),
-		@TypeDef(name = "encryptedDoubleAsString", typeClass = EncryptedDoubleAsStringType.class, parameters = { @Parameter(name = "encryptorRegisteredName", value = "jasyptHibernateEncryptor") }),
-		@TypeDef(name = "encryptedBigDecimalAsString", typeClass = EncryptedBigDecimalAsStringType.class, parameters = { @Parameter(name = "encryptorRegisteredName", value = "jasyptHibernateEncryptor") })
+		@TypeDef(name = "encryptedString", typeClass = EncryptedStringType.class),
+		@TypeDef(name = "encryptedDoubleAsString", typeClass = EncryptedDoubleAsStringType.class),
+		@TypeDef(name = "encryptedBigDecimalAsString", typeClass = EncryptedBigDecimalAsStringType.class)
   })
 ```
 
